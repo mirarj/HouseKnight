@@ -8,6 +8,10 @@ public class ThirdPersonMovement : MonoBehaviour
     public CharacterController controller;
     public SpriteRenderer spriteRenderer;
     public Vector3 direction;
+    private Vector3 directiony;
+    public float jumpHeight;
+
+    public float ydir = 0f;
 
     public Sprite[] nSprite;
     public Sprite[] neSprite;
@@ -15,21 +19,28 @@ public class ThirdPersonMovement : MonoBehaviour
     public Sprite[] seSprite;
     public Sprite[] sSprite;
 
+
+    Vector3 moveVelocity;
+
     // Update is called once per frame
     void Update()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
+
+        if(Input.GetButtonDown("Jump"))
+            ydir = jumpHeight;
+        
+        ydir += -9.81f * Time.deltaTime;
+
         direction = new Vector3(horizontal, 0f, vertical).normalized;
+        direction.y = ydir;
 
         if(direction.magnitude >= 0.1f)
         {
-            //float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            //transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
-
-
             controller.Move(direction * speed * Time.deltaTime);
         }
+
 
         HandleSpriteFlip();
 
@@ -37,10 +48,6 @@ public class ThirdPersonMovement : MonoBehaviour
         if(directionSprites != null)
         {
             spriteRenderer.sprite = directionSprites[0];
-        }
-        else
-        {
-
         }
     }
 
