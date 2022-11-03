@@ -22,6 +22,8 @@ public class BattleSystem : MonoBehaviour
     GameObject playerGO;
 
     public Text dialogueText;
+    public Slider swingSlide;
+    bool attacking;
     public GameObject[] buttons;
 
     public BattleState state;
@@ -29,7 +31,16 @@ public class BattleSystem : MonoBehaviour
     //START OF BATTLE LOGIC
     void Update()
     {
-        Debug.Log(SystemManager.curHP);
+        //PLAYER ATTACK
+        if(Input.GetKeyDown(KeyCode.E) && attacking)
+        {
+            int dmg;
+            swingSlide.gameObject.GetComponent<SliderBar>().StopSlide();
+            dmg = (int)(playerUnit.atkDamagehigh*(1.0f - Mathf.Abs(swingSlide.value)));
+            swingSlide.gameObject.SetActive(false);
+            attacking = false;
+            StartCoroutine(AttackEnemy(dmg));
+        }
     }
     void Start()
     {
@@ -44,7 +55,7 @@ public class BattleSystem : MonoBehaviour
         enemyGO = Instantiate(enemyPrefab, enemySpawn);
         enemyUnit = enemyGO.GetComponent<Unit>();
         
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.05f);
 
         playerGO.GetComponent<SetHUD>().Setup(playerUnit);
         enemyGO.GetComponent<SetHUD>().Setup(enemyUnit);
@@ -65,11 +76,11 @@ public class BattleSystem : MonoBehaviour
         dialogueText.text = "Choose an action";
     }
 
-    IEnumerator AttackEnemy()
+    IEnumerator AttackEnemy(int dmg)
     {
-        bool isDead = enemyUnit.TakeDamage(playerUnit.atkDamage);
+        bool isDead = enemyUnit.TakeDamage(dmg);
         enemyGO.GetComponent<SetHUD>().SetHP(enemyUnit.curHP);
-        dialogueText.text = "You hit " + enemyUnit.unitName + " for " + playerUnit.atkDamage + " damage.";
+        dialogueText.text = "You hit " + enemyUnit.unitName + " for " + dmg + " damage.";
 
         yield return new WaitForSeconds(3f);
 
@@ -85,14 +96,23 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    void Swing()
+    {
+        swingSlide.gameObject.SetActive(true);
+        swingSlide.gameObject.GetComponent<SliderBar>().StartSlider(playerUnit.swingSpeed);
+        attacking = true;
+    }
+
+
     //ENEMY TURN (Currently only attacks)
     IEnumerator EnemyTurn()
     {
-        dialogueText.text = enemyUnit.unitName + "attacks for " + enemyUnit.atkDamage + " damage.";
+        int damage = Random.Range(enemyUnit.atkDamagelow, enemyUnit.atkDamagehigh);
+        dialogueText.text = enemyUnit.unitName + "attacks for " + damage + " damage.";
 
         yield return new WaitForSeconds(1f);
 
-        bool isDead = playerUnit.TakeDamage(enemyUnit.atkDamage);
+        bool isDead = playerUnit.TakeDamage(damage);
         playerGO.GetComponent<SetHUD>().SetHP(playerUnit.curHP);
 
         yield return new WaitForSeconds(1f);
@@ -128,7 +148,7 @@ public class BattleSystem : MonoBehaviour
     {
         if(state != BattleState.PLAYERTURN)
             return;
-        StartCoroutine(AttackEnemy());
+        Swing();
         for(int i = 0; i < buttons.Length; i++)
             buttons[i].SetActive(false);
     }

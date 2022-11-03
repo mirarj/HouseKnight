@@ -10,6 +10,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public Vector3 direction;
     private Vector3 directiony;
     public float jumpHeight;
+    bool sneaking = false;
 
     public float ydir = 0f;
 
@@ -33,7 +34,10 @@ public class ThirdPersonMovement : MonoBehaviour
         
         ydir += -9.81f * Time.deltaTime;
 
-        direction = new Vector3(horizontal, 0f, vertical).normalized;
+        if(CameraZone.zone)
+            direction = new Vector3(vertical*-1f, 0f, horizontal).normalized;
+        else
+            direction = new Vector3(horizontal, 0f, vertical).normalized;
         direction.y = ydir;
 
         if(direction.magnitude >= 0.1f)
@@ -41,6 +45,22 @@ public class ThirdPersonMovement : MonoBehaviour
             controller.Move(direction * speed * Time.deltaTime);
         }
 
+        if(Input.GetButtonDown("Sneak"))
+            if(sneaking)
+            {
+                sneaking = false;
+                speed = 9f;
+            }
+            else
+            {
+                sneaking = true;
+                speed = 4.5f;
+            }
+        if(!sneaking)
+            if(Input.GetButton("Sprint"))
+                speed = 12f;
+            else
+                speed = 9f;
 
         HandleSpriteFlip();
 

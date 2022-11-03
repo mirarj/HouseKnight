@@ -30,8 +30,9 @@ public class SelectEnemy : MonoBehaviour
 
     void OnTriggerStay(Collider other)
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
+        if (Input.GetKey(KeyCode.E))
+        {  
+            Destroy(this);
             SceneManager.LoadScene("Battle");
         }
     }

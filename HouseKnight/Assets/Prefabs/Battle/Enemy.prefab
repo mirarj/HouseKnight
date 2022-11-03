@@ -566,7 +566,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Enemy
   level: 7
-  atkDamage: 10
+  atkDamagelow: 5
+  atkDamagehigh: 18
   maxHP: 20
   curHP: 20
   isPlayer: 0

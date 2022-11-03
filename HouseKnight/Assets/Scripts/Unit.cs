@@ -6,10 +6,12 @@ public class Unit : MonoBehaviour
 {
     public string unitName;
     public int level;
-    public int atkDamage;
+    public int atkDamagelow;
+    public int atkDamagehigh;
     public float maxHP;
     public float curHP;
     public bool isPlayer;
+    public float swingSpeed;
 
     public bool TakeDamage(float dmg)
     {

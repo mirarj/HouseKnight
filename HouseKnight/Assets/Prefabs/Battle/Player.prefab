@@ -200,10 +200,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Player
   level: 5
-  atkDamage: 10
+  atkDamagelow: 7
+  atkDamagehigh: 20
   maxHP: 100
   curHP: 100
   isPlayer: 1
+  swingSpeed: 6
 --- !u!114 &3088655507640996070
 MonoBehaviour:
   m_ObjectHideFlags: 0
