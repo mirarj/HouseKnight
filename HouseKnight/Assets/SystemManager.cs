@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class SystemManager : MonoBehaviour
 {
-    public static float curHP = 30f;
-    public static float maxHP = 50f;
+    public static float curHP = 120f;
+    public static float maxHP = 150f;
     public static Transform playerPosition;
 
     // Start is called before the first frame update

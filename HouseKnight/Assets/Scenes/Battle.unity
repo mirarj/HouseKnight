@@ -155,7 +155,22 @@ MonoBehaviour:
   playerPrefab: {fileID: 4144979659807387164, guid: b00c84dfbf42dde479dec3ead8301dc5, type: 3}
   enemyPrefab: {fileID: 7570862685253535884, guid: de4745937e4b65e4fa7b19a04f6f6e94, type: 3}
   playerSpawn: {fileID: 287531500}
-  enemySpawn: {fileID: 1600171864}
+  enemySpawn:
+  - {fileID: 1600171864}
+  - {fileID: 1725028002}
+  - {fileID: 85725645}
+  numEnemies: 0
+  enemyUnit:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  enemyGO:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  enemyMats:
+  - {fileID: 2100000, guid: 9ca32c963b7e1894cbda50c2dea0d052, type: 2}
+  - {fileID: 2100000, guid: 98b0181284e53b944854c56207d039a2, type: 2}
   dialogueText: {fileID: 1269911597}
   swingSlide: {fileID: 702275416}
   buttons:
@@ -176,6 +191,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &85725644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 85725645}
+  m_Layer: 0
+  m_Name: EnemyPoint (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &85725645
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 85725644}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.83, y: 9.87, z: -5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &105536439
 GameObject:
@@ -544,7 +590,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &333194081
 GameObject:
@@ -1518,7 +1564,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 28.160366
+  field of view: 28.165571
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -1543,7 +1589,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1187272287}
-  m_LocalRotation: {x: 0.05384134, y: 0.0013420911, z: -0.00007236501, w: 0.9985486}
+  m_LocalRotation: {x: 0.05384134, y: 0.0013421255, z: -0.000072366856, w: 0.9985486}
   m_LocalPosition: {x: -7.964235, y: 11.383742, z: -14.88093}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2270,7 +2316,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1558348651}
-  m_LocalRotation: {x: 0.05384134, y: 0.0013420911, z: -0.00007236501, w: 0.9985486}
+  m_LocalRotation: {x: 0.05384134, y: 0.0013421255, z: -0.000072366856, w: 0.9985486}
   m_LocalPosition: {x: -7.964235, y: 11.383742, z: -14.88093}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2484,6 +2530,37 @@ Transform:
   m_Father: {fileID: 1198337739}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: -270}
+--- !u!1 &1725028001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1725028002}
+  m_Layer: 0
+  m_Name: EnemyPoint (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1725028002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725028001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.74, y: 9.87, z: -4.21}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1781621275
 GameObject:
   m_ObjectHideFlags: 0
