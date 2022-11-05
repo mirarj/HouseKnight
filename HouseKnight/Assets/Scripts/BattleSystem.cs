@@ -29,6 +29,7 @@ public class BattleSystem : MonoBehaviour
     bool attacking;
     bool choosing;
     int choice = 0;
+    int prevChoice = 0;
     public GameObject[] buttons;
 
     public BattleState state;
@@ -53,6 +54,8 @@ public class BattleSystem : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.Escape))
             {
                 choosing = false;
+                EnemySelect(choice, true);
+                choice = 0; prevChoice = 0;
                 PlayerTurn();
             }
 
@@ -63,12 +66,8 @@ public class BattleSystem : MonoBehaviour
                 ChangeChoice(false);
 
 
-            enemyUnit[choice].transform.GetChild(0).GetComponent<SpriteRenderer>().material = enemyMats[1];
-            for(int i = 0; i < numEnemies; i++)
-            {
-                if(i != choice && enemyUnit[choice] != null)
-                    enemyUnit[i].transform.GetChild(0).GetComponent<SpriteRenderer>().material = enemyMats[0];
-            }
+            EnemySelect(choice, false);
+            EnemySelect(prevChoice, true);
 
             if(Input.GetKeyDown(KeyCode.E))
             {
@@ -83,16 +82,37 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(SetupBattle());
     }
 
+    void EnemySelect(int index, bool isBig)
+    {
+        if(!isBig)
+        {
+            enemyUnit[index].transform.GetChild(0).GetComponent<SpriteRenderer>().material = enemyMats[1];
+            enemyUnit[index].transform.GetChild(1).localScale = new Vector3(0.53f,0.52f,1f);
+            enemyUnit[index].transform.GetChild(1).GetChild(1).gameObject.SetActive(true);
+            enemyUnit[index].transform.GetChild(1).GetChild(2).gameObject.SetActive(true);
+        }
+        else
+        {
+            enemyUnit[index].transform.GetChild(0).GetComponent<SpriteRenderer>().material = enemyMats[0];
+            enemyUnit[index].transform.GetChild(1).localScale = new Vector3(0.34f,0.27f,1f);
+            enemyUnit[index].transform.GetChild(1).GetChild(1).gameObject.SetActive(false);
+            enemyUnit[index].transform.GetChild(1).GetChild(2).gameObject.SetActive(false);
+        }
+    }
+
+
     void ChangeChoice(bool increase)
     {
         if(increase)
         {
+            prevChoice = choice;
             choice++;
             if(choice > numEnemies - 1)
                 choice = 0;
         }
         else
         {
+            prevChoice = choice;
             choice--;
             if(choice < 0)
                 choice = numEnemies - 1;
@@ -112,6 +132,7 @@ public class BattleSystem : MonoBehaviour
             enemyUnit[i] = enemyGO[i].GetComponent<Unit>();
             yield return new WaitForSeconds(0.03f);
             enemyGO[i].GetComponent<SetHUD>().Setup(enemyUnit[i]);
+            prevChoice = i;
         }
 
         playerGO.GetComponent<SetHUD>().Setup(playerUnit);
@@ -137,25 +158,36 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator AttackEnemy(int dmg, int index)
     {
+        int randomcrit = Random.Range(0, playerUnit.critChance + 1);
+        if(randomcrit == playerUnit.critChance)
+        {
+            dmg = (int)(dmg * 1.5);
+            dialogueText.text = "CRITICAL HIT!!";
+            yield return new WaitForSeconds(1f);
+        }
         bool isDead = enemyUnit[index].TakeDamage(dmg);
-        enemyGO[index].GetComponent<SetHUD>().SetHP(enemyUnit[index].curHP);
+        enemyGO[index].GetComponent<SetHUD>().SetHP(enemyUnit[index].curHP, 2.5f, dmg);
         dialogueText.text = "You hit " + enemyUnit[index].unitName + " for " + dmg + " damage.";
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1.5f);
+        EnemySelect(choice, true);
 
 
         if(isDead)
         {
+            enemyUnit[index].Die();
+            yield return new WaitForSeconds(1.5f);
             Destroy(enemyUnit[index].gameObject);
             numEnemies--;
 
-            for(int j = 0; j < numEnemies - index; j++)
+            for(int j = index; j < numEnemies; j++)
             {
-                enemyUnit[index] = enemyUnit[index + 1];
-                enemyGO[index] = enemyGO[index + 1];
-                enemyUnit[index + 1] = null;
-                enemyGO[index + 1] = null;
+                enemyUnit[j] = enemyUnit[j + 1];
+                enemyGO[j] = enemyGO[j + 1];
+                enemyUnit[j + 1] = null;
+                enemyGO[j + 1] = null;
             }
+            ChangeChoice(true);
 
             if(numEnemies <= 0)
             {
@@ -186,6 +218,7 @@ public class BattleSystem : MonoBehaviour
     void ChooseEnemy()
     {
         choosing = true;
+        //EnemySelect(0, false);
         dialogueText.text = "Choose which enemy to attack";
     }
 
@@ -199,7 +232,7 @@ public class BattleSystem : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         bool isDead = playerUnit.TakeDamage(damage);
-        playerGO.GetComponent<SetHUD>().SetHP(playerUnit.curHP);
+        playerGO.GetComponent<SetHUD>().SetHP(playerUnit.curHP, 0.1f, damage);
 
         yield return new WaitForSeconds(0.2f);
 
@@ -243,7 +276,10 @@ public class BattleSystem : MonoBehaviour
         if(numEnemies > 1)
             ChooseEnemy();
         else
+        {
+            EnemySelect(0, false);
             Swing(0);
+        }
         for(int i = 0; i < buttons.Length; i++)
             buttons[i].SetActive(false);
     }
