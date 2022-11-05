@@ -171,6 +171,8 @@ MonoBehaviour:
   enemyMats:
   - {fileID: 2100000, guid: 9ca32c963b7e1894cbda50c2dea0d052, type: 2}
   - {fileID: 2100000, guid: 98b0181284e53b944854c56207d039a2, type: 2}
+  lookGroup: {fileID: 1541921105}
+  followGroup: {fileID: 1992221019}
   dialogueText: {fileID: 1269911597}
   swingSlide: {fileID: 702275416}
   buttons:
@@ -1470,7 +1472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 1
-  m_FollowOffset: {x: 0, y: 1.18, z: -10}
+  m_FollowOffset: {x: 0, y: 2.15, z: -9.72}
   m_XDamping: 3.6
   m_YDamping: 3.7
   m_ZDamping: 1
@@ -1564,7 +1566,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 28.165571
+  field of view: 19.008642
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -1589,8 +1591,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1187272287}
-  m_LocalRotation: {x: 0.05384134, y: 0.0013420911, z: -0.00007236501, w: 0.9985486}
-  m_LocalPosition: {x: -7.964235, y: 11.383742, z: -14.88093}
+  m_LocalRotation: {x: 0.108629346, y: -0.0000000042761394, z: 4.6727944e-10, w: 0.99408233}
+  m_LocalPosition: {x: -9.384, y: 12.58, z: -15.51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2236,8 +2238,14 @@ MonoBehaviour:
   - target: {fileID: 287531500}
     weight: 1
     radius: 1
-  - target: {fileID: 1600171864}
-    weight: 1
+  - target: {fileID: 0}
+    weight: 0.75
+    radius: 1
+  - target: {fileID: 0}
+    weight: 0.75
+    radius: 1
+  - target: {fileID: 0}
+    weight: 0.75
     radius: 1
 --- !u!4 &1541921106
 Transform:
@@ -2247,7 +2255,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1541921104}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.964235, y: 10.203742, z: -4.88093}
+  m_LocalPosition: {x: -9.384, y: 10.43, z: -5.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2292,7 +2300,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 1541921106}
   m_Follow: {fileID: 1992221020}
   m_Lens:
-    FieldOfView: 37.5
+    FieldOfView: 37.74
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
@@ -2316,8 +2324,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1558348651}
-  m_LocalRotation: {x: 0.05384134, y: 0.0013420911, z: -0.00007236501, w: 0.9985486}
-  m_LocalPosition: {x: -7.964235, y: 11.383742, z: -14.88093}
+  m_LocalRotation: {x: 0.108629346, y: -0.0000000042761394, z: 4.6727944e-10, w: 0.99408233}
+  m_LocalPosition: {x: -9.384, y: 12.58, z: -15.51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2673,8 +2681,14 @@ MonoBehaviour:
   - target: {fileID: 287531500}
     weight: 1
     radius: 1
-  - target: {fileID: 1600171864}
-    weight: 1
+  - target: {fileID: 0}
+    weight: 0.75
+    radius: 1
+  - target: {fileID: 0}
+    weight: 0.75
+    radius: 1
+  - target: {fileID: 0}
+    weight: 0.75
     radius: 1
 --- !u!4 &1992221020
 Transform:
@@ -2684,7 +2698,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1992221018}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.964235, y: 10.203742, z: -4.88093}
+  m_LocalPosition: {x: -9.384, y: 10.43, z: -5.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

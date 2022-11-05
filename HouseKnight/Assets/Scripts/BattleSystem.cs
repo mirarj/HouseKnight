@@ -22,6 +22,8 @@ public class BattleSystem : MonoBehaviour
     public GameObject[] enemyGO;
     GameObject playerGO;
     public Material[] enemyMats;
+    public Cinemachine.CinemachineTargetGroup lookGroup;
+    public Cinemachine.CinemachineTargetGroup followGroup;
 
     public Text dialogueText;
     public Slider swingSlide;
@@ -130,6 +132,10 @@ public class BattleSystem : MonoBehaviour
         {
             enemyGO[i] = Instantiate(enemyPrefab, enemySpawn[i]);
             enemyUnit[i] = enemyGO[i].GetComponent<Unit>();
+
+            lookGroup.m_Targets[i + 1].target = enemySpawn[i];
+            followGroup.m_Targets[i + 1].target = enemySpawn[i];
+
             yield return new WaitForSeconds(0.03f);
             enemyGO[i].GetComponent<SetHUD>().Setup(enemyUnit[i]);
             prevChoice = i;
@@ -148,6 +154,8 @@ public class BattleSystem : MonoBehaviour
         PlayerTurn();
     }
 
+
+
     //PLAYER TURN
     void PlayerTurn()
     {
@@ -165,6 +173,7 @@ public class BattleSystem : MonoBehaviour
             dialogueText.text = "CRITICAL HIT!!";
             yield return new WaitForSeconds(1f);
         }
+        StartCoroutine(AttackAnimation(index));
         bool isDead = enemyUnit[index].TakeDamage(dmg);
         enemyGO[index].GetComponent<SetHUD>().SetHP(enemyUnit[index].curHP, 2.5f, dmg);
         dialogueText.text = "You hit " + enemyUnit[index].unitName + " for " + dmg + " damage.";
@@ -172,13 +181,14 @@ public class BattleSystem : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         EnemySelect(choice, true);
 
-
         if(isDead)
         {
             enemyUnit[index].Die();
             yield return new WaitForSeconds(1.5f);
             Destroy(enemyUnit[index].gameObject);
             numEnemies--;
+            lookGroup.m_Targets[index + 1].target = null;
+            followGroup.m_Targets[index + 1].target = null;
 
             for(int j = index; j < numEnemies; j++)
             {
@@ -207,6 +217,15 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    IEnumerator AttackAnimation(int index)
+    {
+        GameObject player = playerUnit.transform.GetChild(0).gameObject;
+        Vector3 initialPos = player.transform.position;
+        LeanTween.move(player, new Vector3(enemySpawn[index].position.x, 10.1f, enemySpawn[index].position.z), 1f).setEase(LeanTweenType.easeInOutQuint);
+        LeanTween.move(player, initialPos, 1f).setEase(LeanTweenType.easeInOutQuint).setDelay(1.5f);
+        yield return new WaitForSeconds(2f);
+    }
+
     void Swing(int swingChoice)
     {
         swingSlide.gameObject.SetActive(true);
@@ -221,6 +240,8 @@ public class BattleSystem : MonoBehaviour
         //EnemySelect(0, false);
         dialogueText.text = "Choose which enemy to attack";
     }
+
+
 
 
     //ENEMY TURN (Currently only attacks)
@@ -252,6 +273,8 @@ public class BattleSystem : MonoBehaviour
                 StartCoroutine(EnemyTurn(cur + 1));
         }
     }
+
+
 
     //END OF BATTLE
     IEnumerator EndBattle()
