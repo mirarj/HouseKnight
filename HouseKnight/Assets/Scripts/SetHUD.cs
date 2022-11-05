@@ -10,16 +10,21 @@ public class SetHUD : MonoBehaviour
     public TextMeshPro damageText;
     public GameObject healthSlide;
     public GameObject redSlide;
+    public GameObject expSlide;
     public float maxHP;
+    public float curEXP;
 
     public float tweenTime = 2f;
 
     // Update is called once per frame
-    public void Setup(Unit unit)
+    public void Setup(Unit unit, bool isPlayer)
     {
         nameText.text = unit.unitName;
         levelText.text = "lvl " + unit.level;
         maxHP = unit.maxHP;
+        curEXP = unit.curEXP;
+        if(isPlayer)
+            expSlide.transform.localScale = new Vector3(curEXP/unit.maxEXP, 0.9f, 1f);
         healthSlide.transform.localScale = new Vector3(unit.curHP/maxHP, 0.9f, 1f);
         redSlide.transform.localScale = new Vector3(unit.curHP/maxHP, 0.9f, 1f);
     }
@@ -30,6 +35,12 @@ public class SetHUD : MonoBehaviour
         LeanTween.scale(redSlide, new Vector3(hp/maxHP, 0.9f, 1f), time).setEase(LeanTweenType.easeInOutExpo).setDelay(0.05f);
         
         StartCoroutine(Damage(dmg));
+    }
+
+    public void SetEXP(Unit unit, float exp, float time)
+    {
+        levelText.text = "lvl " + unit.level;
+        LeanTween.scale(expSlide, new Vector3(exp/unit.maxEXP, 0.9f, 1f), time).setEase(LeanTweenType.easeInOutExpo);
     }
 
     IEnumerator Damage(int dmg)

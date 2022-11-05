@@ -137,11 +137,11 @@ public class BattleSystem : MonoBehaviour
             followGroup.m_Targets[i + 1].target = enemySpawn[i];
 
             yield return new WaitForSeconds(0.03f);
-            enemyGO[i].GetComponent<SetHUD>().Setup(enemyUnit[i]);
+            enemyGO[i].GetComponent<SetHUD>().Setup(enemyUnit[i], false);
             prevChoice = i;
         }
 
-        playerGO.GetComponent<SetHUD>().Setup(playerUnit);
+        playerGO.GetComponent<SetHUD>().Setup(playerUnit, true);
 
         if (numEnemies > 1)
             dialogueText.text = "A group of enemies approaches...";
@@ -190,6 +190,11 @@ public class BattleSystem : MonoBehaviour
             lookGroup.m_Targets[index + 1].target = null;
             followGroup.m_Targets[index + 1].target = null;
 
+            //GAIN EXP
+            playerUnit.GainEXP(10f);
+            
+
+
             for(int j = index; j < numEnemies; j++)
             {
                 enemyUnit[j] = enemyUnit[j + 1];
@@ -237,7 +242,6 @@ public class BattleSystem : MonoBehaviour
     void ChooseEnemy()
     {
         choosing = true;
-        //EnemySelect(0, false);
         dialogueText.text = "Choose which enemy to attack";
     }
 
