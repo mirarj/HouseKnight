@@ -860,6 +860,9 @@ MonoBehaviour:
   atkDamagehigh: 18
   maxHP: 5
   curHP: 5
+  curEXP: 0
+  maxEXP: 0
+  dropEXP: 15
   isPlayer: 0
   swingSpeed: 0
   critChance: 0
@@ -880,7 +883,9 @@ MonoBehaviour:
   damageText: {fileID: 8067840508244298009}
   healthSlide: {fileID: 2885739127938922669}
   redSlide: {fileID: 8407045538380672448}
+  expSlide: {fileID: 0}
   maxHP: 0
+  curEXP: 0
   tweenTime: 2
 --- !u!1 &7570862685365894016
 GameObject:

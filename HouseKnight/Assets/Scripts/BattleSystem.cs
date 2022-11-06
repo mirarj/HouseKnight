@@ -28,26 +28,41 @@ public class BattleSystem : MonoBehaviour
     public Text dialogueText;
     public Slider swingSlide;
     int enemyIndex;
-    bool attacking;
-    bool choosing;
+    bool attacking = false;
+    bool choosing = false;
+    bool turn = false;
     int choice = 0;
     int prevChoice = 0;
     public GameObject[] buttons;
+    public float[] buttonPos;
+    public GameObject bars;
 
     public BattleState state;
     
     //START OF BATTLE LOGIC
     void Update()
     {
-        //PLAYER ATTACK
-        if(Input.GetKeyDown(KeyCode.E) && attacking)
+        if(!attacking && !choosing && turn)
         {
-            int dmg;
-            swingSlide.gameObject.GetComponent<SliderBar>().StopSlide();
-            dmg = (int)(playerUnit.atkDamagehigh*(1.0f - Mathf.Abs(swingSlide.value)));
-            swingSlide.gameObject.SetActive(false);
-            attacking = false;
-            StartCoroutine(AttackEnemy(dmg, choice));
+            if(Input.GetKeyDown(KeyCode.E))
+                StartCoroutine(AttackButton());
+            else if(Input.GetKeyDown(KeyCode.R))
+                RunButton();
+        }
+
+        //PLAYER ATTACK
+        if(attacking)
+        {
+            if(Input.GetKeyDown(KeyCode.E))
+            {
+                int dmg;
+                swingSlide.gameObject.GetComponent<SliderBar>().StopSlide();
+                dmg = (int)(playerUnit.atkDamagehigh*(1.0f - Mathf.Abs(swingSlide.value)));
+                swingSlide.gameObject.SetActive(false);
+                attacking = false;
+                LeanTween.scale(bars, new Vector3(1f, 1.67f, 1f), 0.5f).setEase(LeanTweenType.easeInOutCubic);
+                StartCoroutine(AttackEnemy(dmg, choice));
+            }
         }
 
         //PLAYER SELECT
@@ -123,7 +138,7 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator SetupBattle()
     {
-        playerGO = Instantiate(playerPrefab, playerSpawn);
+        playerGO = Instantiate(playerPrefab, playerSpawn.position, Quaternion.identity);
         playerUnit = playerGO.GetComponent<Unit>();
 
         numEnemies = Random.Range(1,4);
@@ -148,7 +163,7 @@ public class BattleSystem : MonoBehaviour
         else
             dialogueText.text = "A wild " + enemyUnit[0].unitName + " approaches...";
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1.5f);
 
         state = BattleState.PLAYERTURN;
         PlayerTurn();
@@ -159,8 +174,12 @@ public class BattleSystem : MonoBehaviour
     //PLAYER TURN
     void PlayerTurn()
     {
+        turn = true;
+        LeanTween.scale(bars, new Vector3(1f, 1.13f, 1f), 0.7f).setEase(LeanTweenType.easeOutExpo);
         for(int i = 0; i < buttons.Length; i++)
-            buttons[i].SetActive(true);
+        {
+            LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, buttonPos[i]), 1.1f).setEase(LeanTweenType.easeOutExpo).setDelay(i/10f);
+        }
         dialogueText.text = "Choose an action";
     }
 
@@ -178,7 +197,9 @@ public class BattleSystem : MonoBehaviour
         enemyGO[index].GetComponent<SetHUD>().SetHP(enemyUnit[index].curHP, 2.5f, dmg);
         dialogueText.text = "You hit " + enemyUnit[index].unitName + " for " + dmg + " damage.";
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.9f);
+        CineMachineShake.Instance.ShakeCamera(dmg/10f, 0.3f);
+        yield return new WaitForSeconds(0.6f);
         EnemySelect(choice, true);
 
         if(isDead)
@@ -191,14 +212,17 @@ public class BattleSystem : MonoBehaviour
             followGroup.m_Targets[index + 1].target = null;
 
             //GAIN EXP
-            playerUnit.GainEXP(10f);
+            playerUnit.GainEXP(enemyUnit[index].dropEXP);
+            dialogueText.text = "You Gained " + enemyUnit[index].dropEXP + "EXP.";
             
 
 
             for(int j = index; j < numEnemies; j++)
             {
+                enemySpawn[j] = enemySpawn[j + 1];
                 enemyUnit[j] = enemyUnit[j + 1];
                 enemyGO[j] = enemyGO[j + 1];
+                enemySpawn[j + 1] = null;
                 enemyUnit[j + 1] = null;
                 enemyGO[j + 1] = null;
             }
@@ -228,6 +252,9 @@ public class BattleSystem : MonoBehaviour
         Vector3 initialPos = player.transform.position;
         LeanTween.move(player, new Vector3(enemySpawn[index].position.x, 10.1f, enemySpawn[index].position.z), 1f).setEase(LeanTweenType.easeInOutQuint);
         LeanTween.move(player, initialPos, 1f).setEase(LeanTweenType.easeInOutQuint).setDelay(1.5f);
+
+        LeanTween.move(playerSpawn.gameObject, new Vector3(enemySpawn[index].position.x, 10.1f, enemySpawn[index].position.z), 1f).setEase(LeanTweenType.easeInOutQuint);
+        LeanTween.move(playerSpawn.gameObject, initialPos, 1f).setEase(LeanTweenType.easeInOutQuint).setDelay(1.5f);
         yield return new WaitForSeconds(2f);
     }
 
@@ -254,9 +281,10 @@ public class BattleSystem : MonoBehaviour
         int damage = Random.Range(enemyUnit[cur].atkDamagelow, enemyUnit[cur].atkDamagehigh);
         dialogueText.text = enemyUnit[cur].unitName + "attacks for " + damage + " damage.";
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.25f);
 
         bool isDead = playerUnit.TakeDamage(damage);
+        CineMachineShake.Instance.ShakeCamera(1.5f, 0.3f);
         playerGO.GetComponent<SetHUD>().SetHP(playerUnit.curHP, 0.1f, damage);
 
         yield return new WaitForSeconds(0.2f);
@@ -295,24 +323,30 @@ public class BattleSystem : MonoBehaviour
     }
 
     //UI BUTTONS
-    public void AttackButton()
+    public IEnumerator AttackButton()
     {
-        if(state != BattleState.PLAYERTURN)
-            return;
-        
-        if(numEnemies > 1)
-            ChooseEnemy();
+        yield return new WaitForSeconds(0.05f);
+        turn = false;
+        if(state != BattleState.PLAYERTURN) {}
         else
         {
-            EnemySelect(0, false);
-            Swing(0);
+            if(numEnemies > 1)
+                ChooseEnemy();
+            else
+            {
+                EnemySelect(0, false);
+                Swing(0);
+            }
+            for(int i = buttons.Length - 1; i >= 0; i--)
+                LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, -150f), 1f).setEase(LeanTweenType.easeOutExpo).setDelay(i/20f);
         }
-        for(int i = 0; i < buttons.Length; i++)
-            buttons[i].SetActive(false);
     }
 
     public void RunButton()
     {
+        turn = false;
+        for(int i = buttons.Length - 1; i >= 0; i--)
+            LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, -150f), 1f).setEase(LeanTweenType.easeOutExpo).setDelay(i/20f);
         if(state != BattleState.PLAYERTURN)
             return;
         state = BattleState.RAN;

@@ -14,6 +14,8 @@ public class Unit : MonoBehaviour
     public float curHP;
     public float curEXP;
     public float maxEXP;
+    float leftOverxp;
+    public float dropEXP;
 
     public bool isPlayer;
     public float swingSpeed;
@@ -35,10 +37,11 @@ public class Unit : MonoBehaviour
     public void GainEXP(float exp)
     {
         SystemManager.curEXP += exp;
-        Debug.Log(SystemManager.curEXP);
+        //Debug.Log(SystemManager.curEXP);
         curEXP += exp;
-        curEXP = Mathf.Clamp(curEXP, 0, maxEXP + 1);
-        transform.GetComponent<SetHUD>().SetEXP(this, curEXP, 0.8f);
+        leftOverxp = curEXP - maxEXP;
+        curEXP = Mathf.Clamp(curEXP, 0, maxEXP);
+        transform.GetComponent<SetHUD>().SetEXP(this, curEXP, 0.6f);
 
 
         if (curEXP >= maxEXP)
@@ -50,14 +53,16 @@ public class Unit : MonoBehaviour
 
     IEnumerator LevelUp()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.61f);
         SystemManager.curHP += 10f; curHP += 10f;
         SystemManager.maxHP += 10f; maxHP += 10f;
         SystemManager.level++; level++;
         SystemManager.curEXP = 0f; curEXP = 0f;
 
+        transform.GetComponent<SetHUD>().SetEXP(this, 0, 0);
         yield return new WaitForSeconds(0.4f);
-        transform.GetComponent<SetHUD>().SetEXP(this, 0, 0.2f);
+        if(leftOverxp > 0)
+            GainEXP(leftOverxp);
     }
 
     public void Die()
