@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -20,6 +21,7 @@ public class BattleSystem : MonoBehaviour
     Unit playerUnit;
     public Unit[] enemyUnit;
     public GameObject[] enemyGO;
+    public GameObject prompt;
     GameObject playerGO;
     public Material[] enemyMats;
     public Cinemachine.CinemachineTargetGroup lookGroup;
@@ -30,10 +32,11 @@ public class BattleSystem : MonoBehaviour
     int enemyIndex;
     bool attacking = false;
     bool choosing = false;
-    bool turn = false;
     int choice = 0;
     int prevChoice = 0;
+    int selection = 0;
     public GameObject[] buttons;
+    public GameObject arrow;
     public float[] buttonPos;
     public GameObject bars;
 
@@ -42,13 +45,15 @@ public class BattleSystem : MonoBehaviour
     //START OF BATTLE LOGIC
     void Update()
     {
-        if(!attacking && !choosing && turn)
+        if(EventSystem.current.currentSelectedGameObject != null)
         {
-            if(Input.GetKeyDown(KeyCode.E))
-                StartCoroutine(AttackButton());
-            else if(Input.GetKeyDown(KeyCode.R))
-                RunButton();
+            if(Input.GetButtonDown("Right"))
+                ChangeSelection(true);
+            else if(Input.GetButtonDown("Left"))
+                ChangeSelection(false);
+            arrow.transform.position = new Vector3(buttons[selection].transform.position.x, arrow.transform.position.y, 0f);
         }
+
 
         //PLAYER ATTACK
         if(attacking)
@@ -136,6 +141,22 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    void ChangeSelection(bool increase)
+    {
+        if(increase)
+        {
+            selection++;
+            if(selection > 2)
+                selection = 2;
+        }
+        else
+        {
+            selection--;
+            if(selection < 0)
+                selection = 0;
+        }
+    }
+
     IEnumerator SetupBattle()
     {
         playerGO = Instantiate(playerPrefab, playerSpawn.position, Quaternion.identity);
@@ -158,12 +179,13 @@ public class BattleSystem : MonoBehaviour
 
         playerGO.GetComponent<SetHUD>().Setup(playerUnit, true);
 
+        StartCoroutine(PromptScale(0));
         if (numEnemies > 1)
             dialogueText.text = "A group of enemies approaches...";
         else
             dialogueText.text = "A wild " + enemyUnit[0].unitName + " approaches...";
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1.75f);
 
         state = BattleState.PLAYERTURN;
         PlayerTurn();
@@ -174,23 +196,25 @@ public class BattleSystem : MonoBehaviour
     //PLAYER TURN
     void PlayerTurn()
     {
-        turn = true;
+        EventSystem.current.SetSelectedGameObject(buttons[0]);
+        StartCoroutine(PromptScale(1));
         LeanTween.scale(bars, new Vector3(1f, 1.13f, 1f), 0.7f).setEase(LeanTweenType.easeOutExpo);
         for(int i = 0; i < buttons.Length; i++)
         {
-            LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, buttonPos[i]), 1.1f).setEase(LeanTweenType.easeOutExpo).setDelay(i/10f);
+            LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, 100f), 0.45f).setEase(LeanTweenType.easeOutCubic).setDelay(i/20f);
         }
-        dialogueText.text = "Choose an action";
     }
 
     IEnumerator AttackEnemy(int dmg, int index)
     {
+        StartCoroutine(PromptScale(0));
         int randomcrit = Random.Range(0, playerUnit.critChance + 1);
         if(randomcrit == playerUnit.critChance)
         {
             dmg = (int)(dmg * 1.5);
             dialogueText.text = "CRITICAL HIT!!";
             yield return new WaitForSeconds(1f);
+            StartCoroutine(PromptScale(2));
         }
         StartCoroutine(AttackAnimation(index));
         bool isDead = enemyUnit[index].TakeDamage(dmg);
@@ -213,7 +237,9 @@ public class BattleSystem : MonoBehaviour
 
             //GAIN EXP
             playerUnit.GainEXP(enemyUnit[index].dropEXP);
+            StartCoroutine(PromptScale(2));
             dialogueText.text = "You Gained " + enemyUnit[index].dropEXP + "EXP.";
+            yield return new WaitForSeconds(0.5f);
             
 
 
@@ -260,6 +286,7 @@ public class BattleSystem : MonoBehaviour
 
     void Swing(int swingChoice)
     {
+        StartCoroutine(PromptScale(1));
         swingSlide.gameObject.SetActive(true);
         swingSlide.gameObject.GetComponent<SliderBar>().StartSlider(playerUnit.swingSpeed);
         attacking = true;
@@ -269,16 +296,36 @@ public class BattleSystem : MonoBehaviour
     void ChooseEnemy()
     {
         choosing = true;
+        StartCoroutine(PromptScale(0));
         dialogueText.text = "Choose which enemy to attack";
     }
 
-
+    IEnumerator PromptScale(int up)
+    {
+        if(up == 0)
+        {
+            prompt.SetActive(true);
+            LeanTween.scale(prompt, new Vector3(1.25f, 2.19f, 1.1f), 0.35f).setEase(LeanTweenType.easeOutQuint);
+        }
+        else if (up == 1)
+        {
+            LeanTween.scale(prompt, new Vector3(1f, 1.85f, 1.1f), 0.15f).setEase(LeanTweenType.easeInQuint);
+            yield return new WaitForSeconds(0.14f);
+            prompt.SetActive(false);
+        }
+        else if (up == 2)
+        {
+            LeanTween.scale(prompt, new Vector3(1.21f, 2.0f, 1.1f), 0.08f).setEase(LeanTweenType.easeOutQuint);
+            LeanTween.scale(prompt, new Vector3(1.25f, 2.19f, 1.1f), 0.08f).setEase(LeanTweenType.easeOutQuint).setDelay(0.1f);
+        }
+    }
 
 
     //ENEMY TURN (Currently only attacks)
     IEnumerator EnemyTurn(int cur)
     {
         int damage = Random.Range(enemyUnit[cur].atkDamagelow, enemyUnit[cur].atkDamagehigh);
+        StartCoroutine(PromptScale(2));
         dialogueText.text = enemyUnit[cur].unitName + "attacks for " + damage + " damage.";
 
         yield return new WaitForSeconds(1.25f);
@@ -323,13 +370,21 @@ public class BattleSystem : MonoBehaviour
     }
 
     //UI BUTTONS
-    public IEnumerator AttackButton()
+    public void AttackButton()
     {
-        yield return new WaitForSeconds(0.05f);
-        turn = false;
+        StartCoroutine(AttackQuick());
+    }
+
+    IEnumerator AttackQuick()
+    {
+        yield return new WaitForSeconds(0.02f);
+        EventSystem.current.SetSelectedGameObject(null);
         if(state != BattleState.PLAYERTURN) {}
         else
         {
+            for(int i = buttons.Length - 1; i >= 0; i--)
+                LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, -150f), 0.3f).setEase(LeanTweenType.easeInCubic).setDelay(0.15f);
+            yield return new WaitForSeconds(0.21f);
             if(numEnemies > 1)
                 ChooseEnemy();
             else
@@ -337,16 +392,15 @@ public class BattleSystem : MonoBehaviour
                 EnemySelect(0, false);
                 Swing(0);
             }
-            for(int i = buttons.Length - 1; i >= 0; i--)
-                LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, -150f), 1f).setEase(LeanTweenType.easeOutExpo).setDelay(i/20f);
         }
     }
 
     public void RunButton()
     {
-        turn = false;
+        EventSystem.current.SetSelectedGameObject(null);
+        StartCoroutine(PromptScale(0));
         for(int i = buttons.Length - 1; i >= 0; i--)
-            LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, -150f), 1f).setEase(LeanTweenType.easeOutExpo).setDelay(i/20f);
+            LeanTween.move(buttons[i], new Vector2(buttons[i].transform.position.x, -150f), 0.3f).setEase(LeanTweenType.easeInCubic).setDelay(0.15f);
         if(state != BattleState.PLAYERTURN)
             return;
         state = BattleState.RAN;
